@@ -1,0 +1,17 @@
+[
+  {
+    "name":            ,
+    "size":            ,
+    "mass":            ,
+    "hull":            ,
+    "hit-propability": ,
+    "hit-priority":    ,
+    "damage":          ,
+    "fire-rate":       ,
+    "range":           ,
+    "variation":       ,
+    "accuracy":        ,
+    "rotatability":    ,
+    "energy-usage":    
+  }
+]
