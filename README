@@ -1,15 +1,4 @@
-# Clepic
+EPIC
 
-FIXME: write description
-
-## Usage
-
-FIXME: write
-
-## Installation
-
-FIXME: write
-
-## License
-
-FIXME: write
+to get data:
+cp -r templates data
