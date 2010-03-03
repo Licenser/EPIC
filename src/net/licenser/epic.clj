@@ -1,4 +1,4 @@
-(ns Clepic
+(ns net.licenser.epic
   (:use net.licenser.epic.utils)
   (:use net.licenser.epic.game)
   (:require (net.licenser.epic [modules :as modules] [units :as units]))
@@ -9,8 +9,8 @@
   (:use net.licenser.epic.game.basic)
   (:use clojure.template)
   (:use clojure.stacktrace)
+  (:use clojure.contrib.command-line)
   (:gen-class))
-
 
 (declare *game* *unit-id*)
 
@@ -19,64 +19,49 @@
   (doall
    (map (fn [data] (add-fn data)) (jr/read-json (slurp file)))))
 
-
 (def *modules* (ref {}))
 
 (def *scripts* (ref {}))
 
-
 (defn add-hull
-  [{name :name size :size maneuverability :maneuverability hull :hull mass :mass}]
+  [{name "name" size "size" maneuverability "maneuverability" hull "hull" mass "mass" :as data}]
   (dosync (alter *modules* assoc name (modules/create-hull name size mass hull maneuverability))))
 
 (defn add-engine
-  [{name :name size :size mass :mass hull :hull hit-propability :hit-propability hit-priority :hit-priority energy-usage :energy-usage range :range}]
+  [{name "name" size "size" mass "mass" hull "hull" hit-propability "hit-propability" hit-priority "hit-priority" energy-usage "energy-usage" range "range"}]
   (dosync (alter *modules* assoc name (modules/create-engine name size mass hull hit-propability hit-priority range energy-usage))))
 
 (defn add-armor
-  [{name :name size :size mass :mass hull :hull hit-propability :hit-propability hit-priority :hit-priority damage-absorbtion :damage-absorbtion}]
+  [{name "name" size "size" mass "mass" hull "hull" hit-propability "hit-propability" hit-priority "hit-priority" damage-absorbtion "damage-absorbtion"}]
   (dosync (alter *modules* assoc name (modules/create-armor name size mass hull hit-propability hit-priority damage-absorbtion))))
 
 (defn add-reactor 
-  [{name :name size :size mass :mass hull :hull hit-propability :hit-propability hit-priority :hit-priority discharge-rate :discharge-rate output :output capacity :capacity efficientcy :efficientcy}]
+  [{name "name" size "size" mass "mass" hull "hull" hit-propability "hit-propability" hit-priority "hit-priority" discharge-rate "discharge-rate" output "output" capacity "capacity" efficientcy "efficientcy"}]
   (dosync (alter *modules* assoc name (modules/create-reactor name size mass hull hit-propability hit-priority discharge-rate output capacity efficientcy))))
 
 (defn add-shield
-  [{name :name size :size mass :mass hull :hull energy :energy}]
+  [{name "name" size "size" mass "mass" hull "hull" energy "energy"}]
   (dosync (alter *modules* assoc name (modules/create-shield name size mass hull energy))))
 
 (defn add-weapon
   [{
-    name :name 
-    size :size 
-    mass :mass
-    hull :hull
-    hit-propability :hit-propability
-    hit-priority :hit-priority
-    damage :damage
-    fire-rate :fire-rate
-    range :range
-    variation :variation
-    accuracy :accuracy
-    rotatability :rotatability
-    energy-usage :energy-usage}]
+    name "name" 
+    size "size" 
+    mass "mass"
+    hull "hull"
+    hit-propability "hit-propability"
+    hit-priority "hit-priority"
+    damage "damage"
+    fire-rate "fire-rate"
+    range "range"
+    variation "variation"
+    accuracy "accuracy"
+    rotatability "rotatability"
+    energy-usage "energy-usage"}]
   (dosync (alter *modules* assoc name (modules/create-weapon name size mass hull hit-propability hit-priority damage fire-rate range variation accuracy rotatability energy-usage))))
 
 
-(def *data-directory* "/Users/heinz/Projects/epic2-concurrent/data")
-
-(load-data-file (str *data-directory* "/hulls.json") add-hull)
-
-(load-data-file (str *data-directory* "/engines.json") add-engine)
-
-(load-data-file (str *data-directory* "/armors.json") add-armor)
-
-(load-data-file (str *data-directory* "/generators.json") add-reactor)
-
-(load-data-file (str *data-directory* "/shields.json") add-shield)
-
-(load-data-file (str *data-directory* "/weapons.json") add-weapon)
-
+(def *data-directory* "./data")
 
 (def *pp-json* false)
 
@@ -277,11 +262,21 @@
 ;       m-g (multi-game-seq games)
 
 (defn -main
-  ([file]
-     (let [a-game (load-fight "/Users/heinz/Projects/epic2-concurrent/fight.json")
-	   g (make-cycle-seq a-game)]
-    (println "START")
-    (time (def x (dorun g)))
-    (save-log a-game file)))
-  ([]
-     (-main "/Users/heinz/Projects/Epic/server/public/log.json")))
+  [& args]
+  (with-command-line args
+    "EPIC shell"
+    [[data-directory "specifies a data directory." "./data"]
+     [in-file "json fight definition" "./fight.json"]
+     [out-file "output json file" "./log.json"]
+     ]
+    (load-data-file (str data-directory "/hulls.json") add-hull)
+    (load-data-file (str data-directory "/engines.json") add-engine)
+    (load-data-file (str data-directory "/armors.json") add-armor)
+    (load-data-file (str data-directory "/generators.json") add-reactor)
+    (load-data-file (str data-directory "/shields.json") add-shield)
+    (load-data-file (str data-directory "/weapons.json") add-weapon)
+    (let [a-game (load-fight in-file)
+	  g (make-cycle-seq a-game)]
+      (println "START")
+      (time (def x (dorun g)))
+      (save-log a-game out-file))))

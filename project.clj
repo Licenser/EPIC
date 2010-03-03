@@ -5,4 +5,4 @@
 	:dev-dependencies [
 	[leiningen/lein-swank "1.0.0-SNAPSHOT"]
 	[swank-clojure/swank-clojure "1.1.0"]]
-	:main Clepic) 
+	:main net.licenser.epic) 
