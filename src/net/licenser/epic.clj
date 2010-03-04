@@ -99,26 +99,6 @@
 	   nil))))
   ([] (cycle-game *game*)))
 
-(defn ff-best-target
-  ([unit hostiles range target variation]
-     (try
-      (if (not (empty? hostiles))
-	(let [t (first hostiles)
-	      d (map-distance unit @t)
-	      v (Math/abs (- range d))]
-	  (if (= d range)
-	    t
-	    (if (< v variation)
-	      (recur unit (rest hostiles) range t v)
-	      (recur unit (rest hostiles) range target variation))))
-	target)
-      (catch StackOverflowError e
-	(println "In best-target")
-	(print-stack-trace *e 5))))
-     ([unit hostiles range]
-	(ff-best-target unit hostiles range nil 1000000)))
-
-
 
 (defn best-target
   ([hostiles perfect-fn better-fn target]
@@ -133,7 +113,6 @@
      ([hostiles perfect-fn better-fn]
 	(best-target hostiles perfect-fn better-fn nil)))
 
-
 (defn ff-cycle-script
   [game unit]
 ;  (if (and (:last-target @unit) (not (:destroyed @(:last-target @unit))))
@@ -143,7 +122,7 @@
 	  target (best-target 
 		  hostiles 
 		  (fn [t] (and (< 1 (map-distance @unit t) 3) (> 100 (unit-mass t))))
-		  (fn [old-t new-t] (< (map-distance @unit new-t) (map-distance @unit old-t))))]
+		  (fn [new-t old-t] (< (map-distance @unit new-t) (map-distance @unit old-t))))]
       (if target
 	(dosync 
 	  (alter unit assoc :last-target target)
