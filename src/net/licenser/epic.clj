@@ -92,7 +92,7 @@
 	      (not (zero? c-t2-a)))
 	   (do
 	     (cycle-log)
-	     (time (cycle-game* (:game game-data)))
+	     (time (cycle-game* (:game game-data) 200))
 	     (println "log:" (count @*log*))
 	     (println "cycle-log:" (count @*cycle-log*))
 	     @*cycle-log*)
