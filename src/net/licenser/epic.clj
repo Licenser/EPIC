@@ -153,22 +153,24 @@
 
 (defn dd-cycle-script
   [game unit]
-  (let [weapon-range 15]
-    (if (and (:last-target @unit) (not (:destroyed @(:last-target @unit))))
-      (dosync (fire-all (intercept-unit game unit (:last-target @unit) weapon-range) unit  (:last-target @unit)))
-      (let [d (int 5)
-	    hostiles (find-hostile-units game unit 100)
+  (let [pd-range 5
+	weapon-range 15
+	last (:last-target @unit)]
+    (if (and last (not (:destroyed @last)))
+      (dosync (fire-all (intercept-unit game unit last (if (> (unit-mass @last) 10000) weapon-range pd-range)) unit last))
+      (let [hostiles (find-hostile-units game unit 100)
 	    target (best-target 
 		    hostiles 
 		    (fn [t] (and (< 13 (map-distance @unit t) 17) (< 10000 (unit-mass t))))
-		    (fn [old-t new-t] 
-		      (> (unit-mass new-t) (unit-mass old-t) 2)))]
+		    (fn [new-t old-t] 
+		      (> (unit-mass new-t) (unit-mass old-t))))]
 	(trace "cyclescript" "cycle for" (:id @unit) "attacking:" target)
 	(if target
 	  (dosync
 	   (combat-log :target {:unit (:id @unit) :target (:id @target)})
 	   (alter unit assoc :last-target target)
-	 (fire-all (intercept-unit game unit target weapon-range) unit target))
+	   (fire-all (intercept-unit game unit target (if (> (unit-mass @target) 10000) weapon-range pd-range)) unit target)
+	   (emply-point-defense game unit))
 	  game)))))
 
 (dosync

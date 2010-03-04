@@ -1,6 +1,7 @@
 (ns net.licenser.epic.game.logic
   (:require [net.licenser.epic.game.basic :as basic])
   (:use clojure.stacktrace)
+  (:use clojure.contrib.str-utils)
   (:require (net.licenser.epic [modules :as modules] [units :as units] [utils :as utils])))
 
 (defn directions
@@ -13,6 +14,7 @@
 	(directions start (inc i) d))))) 
   ([start d] 
      (take 6 (cons (mod start 6) (directions start 1 d)))))
+
 
 (defn intercept-unit
   ([game unit target distance visited]
@@ -91,7 +93,6 @@
        (<= (- (:range spec) (:variation spec)) dist (+ (:range spec) (:variation spec)))
        (<= (:times-used spec) (:max-usage spec))))))
 
-
 (defn fire-weapon [game unit weapon-id target]
   (dosync
    (let [w (utils/get-module @unit weapon-id)]
@@ -108,6 +109,14 @@
 	 (utils/trace "game.logic.fire-weapon" "Can't-Fire attacker:" (:id @unit) "| target:" (:id @target))
 	 game)))))
 
+(defn emply-point-defense
+  [game unit]
+  (let [pd-s  (filter #(re-find #"Point Defense" (:name %)) (utils/get-modules @unit :weapon))
+	r (reduce #(max %1 %2) (map #(+ (utils/module-spec % :range) (utils/module-spec % :variation)) pd-s))
+	ts (find-hostile-units game unit r)]
+    (doall (map (fn [w]
+		  (doall (map (fn [t] (fire-weapon game unit (:id w) t)) ts))) pd-s)))
+  game)
 
 (defn fire-all [game unit target]
   (let [modules (map #(:id %) (utils/get-modules @unit :weapon))]
