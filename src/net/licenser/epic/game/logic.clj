@@ -36,6 +36,7 @@
 				   (utils/friction-direction-to @unit @target)
 				   (mod (+ (utils/friction-direction-to @unit @target) 3) 6))
 		  rounded-direction (int (Math/round best-direction))
+		  rounded-direction (if (< distance d) rounded-direction (+ rounded-direction 3))
 		  delta (if (< best-direction rounded-direction) 1 -1)
 		  dirs (directions rounded-direction delta)
 		  _ (utils/trace "logic.intercept" "possible directions:" dirs)
