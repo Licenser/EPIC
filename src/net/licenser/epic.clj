@@ -136,24 +136,25 @@
 
 (defn ff-cycle-script
   [game unit]
-  ;(if (and (:last-target @unit) (not (:destroyed @unit)))
-  ;  (dosync (fire-all (intercept-unit game unit (:last-target @unit) 2) unit (:last-target @unit)))
+;  (if (and (:last-target @unit) (not (:destroyed @(:last-target @unit))))
+;    (dosync (fire-all (intercept-unit game unit (:last-target @unit) 2) unit (:last-target @unit)))
     (let [d (int 5)
 	  hostiles (find-hostile-units game unit 100)
 	  target (best-target 
 		  hostiles 
 		  (fn [t] (and (< 1 (map-distance @unit t) 3) (> 100 (unit-mass t))))
 		  (fn [old-t new-t] (< (map-distance @unit new-t) (map-distance @unit old-t))))]
-      (trace "cyclescript" "cycle for" (:id @unit) "attacking:" target)
       (if target
-	(dosync (fire-all (intercept-unit game unit target 2) unit target))
+	(dosync 
+	  (alter unit assoc :last-target target)
+	  (fire-all (intercept-unit game unit target 2) unit target))
 	game)));)
 
 
 (defn dd-cycle-script
   [game unit]
-;  (if (and (:last-target @unit) (not (:destroyed @unit)))
-;    (dosync (fire-all (intercept-unit game unit (:last-target @unit) 2) unit  (:last-target @unit)))
+  (if (and (:last-target @unit) (not (:destroyed @(:last-target @unit))))
+    (dosync (fire-all (intercept-unit game unit (:last-target @unit) 2) unit  (:last-target @unit)))
     (let [d (int 5)
 	  hostiles (find-hostile-units game unit 100)
 	  target (best-target 
@@ -166,11 +167,9 @@
       (trace "cyclescript" "cycle for" (:id @unit) "attacking:" target)
       (if target
 	(dosync 
-	 (combat-log :target {:unit (:id @unit) :target (:id @target)})
-	 (combat-log :pause {})
 	 (alter unit assoc :last-target target)
 	 (fire-all (intercept-unit game unit target 15) unit target))
-	game)));)
+	game))))
 
 (dosync
  (alter *scripts* assoc "fighter" ff-cycle-script)
