@@ -141,8 +141,14 @@
 	    target (best-target 
 		    hostiles 
 		    (fn [t] (and (< 13 (map-distance @unit t) 17) (< 10000 (unit-mass t))))
-		    (fn [new-t old-t] 
-		      (> (unit-mass new-t) (unit-mass old-t))))]
+		    (fn [new-t old-t]
+		      (let [n-m (unit-mass new-t)
+			    o-m (unit-mass old-t)]
+		      (or 
+		       (> (unit-mass new-t) (unit-mass old-t))
+		       (and
+			(< (* o-m 0.1) (Math/abs (- o-m n-m)))
+			(< (map-distance @unit new-t)  (map-distance @unit old-t)))))))]
 	(trace "cyclescript" "cycle for" (:id @unit) "attacking:" target)
 	(if target
 	  (dosync
