@@ -136,7 +136,10 @@
 	weapon-range 15
 	last (:last-target @unit)]
     (if (and last (not (:destroyed @last)))
-      (dosync (fire-all (intercept-unit game unit last (if (> (unit-mass @last) 10000) weapon-range pd-range)) unit last))
+      (dosync 
+	(fire-all (intercept-unit game unit last (if (> (unit-mass @last) 10000) weapon-range pd-range)) unit last)
+	(emply-point-defense game unit)
+	game)
       (let [hostiles (find-hostile-units game unit 100)
 	    target (best-target 
 		    hostiles 
