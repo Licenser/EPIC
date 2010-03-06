@@ -176,10 +176,9 @@
 		  (map #(get @*modules* %) modules)))]
     (assoc u :id n)))
 
-(defn load-fight
-  [file]
-  (let [game (bind-game)
-	data (jr/read-json (slurp file))]
+(defn compile-game
+  [data]
+  (let [game (bind-game)]
     (binding [*cycle-log* (:cycle-log game)
 	      *log* (:game-log game)]
       (assoc 
@@ -202,8 +201,11 @@
 			       u (get-unit g (:id u))]
 			   (combat-log :spawn {:unit (:id @u) :team team :data (unit-data @u)})
 			   (move-unit* g u x y))) game (map (fn [a b] [a b]) units (iterate inc 0)) ))) (:game game) data)))))
-  
 
+(defn load-fight
+  [file]
+  (compile-game (jr/read-json (slurp file))))
+  
 
 (defn make-cycle-seq
      [game]
@@ -238,17 +240,15 @@
 	  nil
 	(cons f (multi-game-seq (map rest games)))))))
 
+(defn load-data
+  [data-directory]
+  (load-data-file (str data-directory "/hulls.json") add-hull)
+  (load-data-file (str data-directory "/engines.json") add-engine)
+  (load-data-file (str data-directory "/armors.json") add-armor)
+  (load-data-file (str data-directory "/generators.json") add-reactor)
+  (load-data-file (str data-directory "/shields.json") add-shield)
+  (load-data-file (str data-directory "/weapons.json") add-weapon))
 
-
-	;games  (map #(make-cycle-seq (init-game %)) [
-;					1])
-;	     1000  1000  1000  1000
-;	      249   249   249  249  249  249  249  249
-;	      249   249   249  249  249  249  249  249
-;	       84    84    84   84   84   84   84   84
-;	       84    84    84   84   84   84   84   84
-;	       84    84    84   84   84   84   84   84])
-;       m-g (multi-game-seq games)
 
 (defn -main
   [& args]
@@ -258,12 +258,7 @@
      [in-file "json fight definition" "./fight.json"]
      [out-file "output json file" "./log.json"]
      ]
-    (load-data-file (str data-directory "/hulls.json") add-hull)
-    (load-data-file (str data-directory "/engines.json") add-engine)
-    (load-data-file (str data-directory "/armors.json") add-armor)
-    (load-data-file (str data-directory "/generators.json") add-reactor)
-    (load-data-file (str data-directory "/shields.json") add-shield)
-    (load-data-file (str data-directory "/weapons.json") add-weapon)
+    (load-data data-directory)
     (let [a-game (load-fight in-file)
 	  g (make-cycle-seq a-game)]
       (println "START")
