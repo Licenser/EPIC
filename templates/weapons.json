@@ -1,17 +1,17 @@
 [
   {
-    "name":            ,
-    "size":            ,
-    "mass":            ,
-    "hull":            ,
-    "hit-propability": ,
-    "hit-priority":    ,
-    "damage":          ,
-    "fire-rate":       ,
-    "range":           ,
-    "variation":       ,
-    "accuracy":        ,
-    "rotatability":    ,
-    "energy-usage":    
+    "name":            "Laser",
+    "size":            1,
+    "mass":            5,
+    "hull":            5,
+    "hit-propability": 0.05,
+    "hit-priority":    0.1,
+    "damage":          2,
+    "fire-rate":       3,
+    "range":           2,
+    "variation":       1,
+    "accuracy":        0.9,
+    "rotatability":    0,
+    "energy-usage":    1
   }
 ]

@@ -1,14 +1,14 @@
 [
   {
-    "name":            ,
-    "size":            ,
-    "mass":            ,
-    "hull":            ,
-    "hit-propability": ,
-    "hit-priority":    ,
-    "discharge-rate":  ,
-    "output":          ,
-    "capacity":        ,
-    "efficientcy":     
+    "name":            "Small Battery",
+    "size":            1,
+    "mass":            20,
+    "hull":            10,
+    "hit-propability": 0.05,
+    "hit-priority":    0.5,
+    "discharge-rate":  5,
+    "output":          0,
+    "capacity":        50,
+    "efficientcy":     0
   }
 ]

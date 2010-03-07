@@ -1,9 +1,9 @@
 [
   {
-    "name":   ,
-    "size":   ,
-    "mass":   ,
-    "hull":   ,
-    "energy": 
+    "name":   "Light FF Shield",
+    "size":   2,
+    "mass":   20,
+    "hull":   50,
+    "energy": 40
   }
 ]

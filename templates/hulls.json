@@ -1,9 +1,9 @@
 [
   {
-    "name":            ,
-    "size":            ,
-    "maneuverability": ,
-    "hull":            ,
-    "mass":            
+    "name":            "Fighter L",
+    "size":            3,
+    "maneuverability": 1.0,
+    "hull":            15,
+    "mass":	       40
   }
 ]

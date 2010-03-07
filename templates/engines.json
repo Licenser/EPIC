@@ -1,12 +1,12 @@
 [
   {
-    "name":            ,
-    "size":            ,
-    "mass":            ,
-    "hull":            ,
-    "hit-propability": ,
-    "hit-priority":    ,
-    "energy-usage":    ,
-    "range":           
+    "name":            "fighter Engine",
+    "size":            1,
+    "mass":            5,
+    "hull":            10,
+    "hit-propability": 0.1,
+    "hit-priority":    0.5,
+    "energy-usage":    1,
+    "range":           5
   }
 ]

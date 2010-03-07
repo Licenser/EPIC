@@ -1,11 +1,11 @@
 [
   {
-    "name":              ,
-    "size":              ,
-    "mass":              ,
-    "hull":              ,
-    "hit-propability":   ,
-    "hit-priority":      ,
-    "damage-absorbtion": 
+    "name":              "Light F Armor",
+    "size":              1,
+    "mass":              20,
+    "hull":              20,
+    "hit-propability":   0.95,
+    "hit-priority":      0.95,
+    "damage-absorbtion": 1
   }
 ]

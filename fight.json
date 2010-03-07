@@ -1,0 +1,38 @@
+{
+  "one": {
+    "classes": {
+      "fighter": {
+        "script": "fighter",
+        "modules": ["Fighter L", "Small Battery", "fighter Engine", "Laser"]
+      }
+    },
+    "units": [
+      {"class": "fighter"},
+      {"class": "fighter"},
+      {"class": "fighter"}
+    ],
+    "start-x": 10,
+    "start-y": 0,
+    "d-x": 1,
+    "d-y": -1,
+    "row-size": 42,
+  },
+  "two": {
+    "classes": {
+      "fighter": {
+        "script": "fighter",
+        "modules": ["Fighter L", "Small Battery", "fighter Engine", "Laser"]
+      }
+    },
+    "units": [
+      {"class": "fighter"}
+      {"class": "fighter"}
+      {"class": "fighter"}
+    ],
+    "start-x": 0,
+    "start-y": 10,
+    "d-x": -1,
+    "d-y": 1,
+    "row-size": 42,
+  },
+}
