@@ -184,7 +184,8 @@
       (assoc 
 	  game :game 
 	  (reduce (fn [game [team data]]
-		    (let[units (get data "units")
+		    (let[classes (get data "classes" {})
+			 units (get data "units")
 			 start-x (get data "start-x")
 			 start-y (get data "start-y")
 			 d-x (get data "d-x")
@@ -192,7 +193,9 @@
 			 row-size (get data "row-size")]
 		      (reduce 
 		       (fn [game [unit i]]
-			 (let [u (build-unit team unit)
+			 (let [class (get unit "class")
+			       unit (if class (merge unit (get classes class)) unit)
+			       u (build-unit team unit)
 			       x (- start-x (mod i row-size))
 			       x (int (+ x (* d-x (Math/floor (/ i row-size)))))
 			       y (- start-y (mod i row-size))
