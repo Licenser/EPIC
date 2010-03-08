@@ -176,6 +176,13 @@
 		  (map #(get @*modules* %) modules)))]
     (assoc u :id n)))
 
+(defn valid-unit
+  [unit]
+  (and 
+   (= 1 (count (get-modules unit :hull)))
+   (= 1 (count (get-modules unit :engine)))
+   (>= 1 (count (get-modules unit :generator)))))
+
 (defn compile-game
   [data]
   (let [game (bind-game)]
@@ -195,15 +202,19 @@
 		       (fn [game [unit i]]
 			 (let [class (get unit "class")
 			       unit (if class (merge unit (get classes class)) unit)
-			       u (build-unit team unit)
-			       x (- start-x (mod i row-size))
-			       x (int (+ x (* d-x (Math/floor (/ i row-size)))))
-			       y (- start-y (mod i row-size))
-			       y (int (+ y (* d-y (Math/floor (/ i row-size)))))
-			       g (add-unit game u)
-			       u (get-unit g (:id u))]
-			   (combat-log :spawn {:unit (:id @u) :team team :data (unit-data @u)})
-			   (move-unit* g u x y))) game (map (fn [a b] [a b]) units (iterate inc 0)) ))) (:game game) data)))))
+			       u (build-unit team unit)]
+			   (if (valid-unit u)
+			     (let [x (- start-x (mod i row-size))
+				   x (int (+ x (* d-x (Math/floor (/ i row-size)))))
+				   y (- start-y (mod i row-size))
+				   y (int (+ y (* d-y (Math/floor (/ i row-size)))))
+				   g (add-unit game u)
+				   u (get-unit g (:id u))]
+			       (combat-log :spawn {:unit (:id @u) :team team :data (unit-data @u)})
+			       (move-unit* g u x y))
+			     (do 
+			       (println "Invalid unit:" unit)
+			       game)))) game (map (fn [a b] [a b]) units (iterate inc 0)) ))) (:game game) data)))))
 
 (defn load-fight
   [file]
