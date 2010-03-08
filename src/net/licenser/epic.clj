@@ -117,7 +117,7 @@
   [game unit]
 ;  (if (and (:last-target @unit) (not (:destroyed @(:last-target @unit))))
 ;    (dosync (fire-all (intercept-unit game unit (:last-target @unit) 2) unit (:last-target @unit)))
-    (let [d (int 5)
+    (let [d (module-spec (first (get-modules @unit :weapon)) :range)
 	  hostiles (find-hostile-units game unit 100)
 	  target (best-target 
 		  hostiles 
