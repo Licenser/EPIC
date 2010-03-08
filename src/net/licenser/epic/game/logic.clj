@@ -111,9 +111,9 @@
 
 (defn emply-point-defense
   [game unit]
-  (let [pd-s  (filter #(re-find #"Point Defense" (:name %)) (utils/get-modules @unit :weapon))
-	r (reduce #(max %1 %2) (map #(+ (utils/module-spec % :range) (utils/module-spec % :variation)) pd-s))
-	ts (find-hostile-units game unit r)]
+  (when-let [pd-s  (filter #(re-find #"Point Defense" (:name %)) (utils/get-modules @unit :weapon))
+	     r (reduce #(max %1 %2) (map #(+ (utils/module-spec % :range) (utils/module-spec % :variation)) pd-s))
+	     ts (find-hostile-units game unit r)]
     (doall (map (fn [w]
 		  (doall (map (fn [t] (fire-weapon game unit (:id w) t)) ts))) pd-s)))
   game)
