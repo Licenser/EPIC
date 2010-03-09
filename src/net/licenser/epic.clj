@@ -14,6 +14,8 @@
 
 (declare *game* *unit-id*)
 
+(def *tick-hard-limit* 500)
+
 (defn load-data-file
   [file add-fn]
   (doall
@@ -225,7 +227,7 @@
      [game]
      (lazy-seq 
       (let [l (cycle-game game)]
-	(if (not (empty? l))
+	(if (and (not (empty? l)) (> *tick-hard-limit* (count @(:game-log game))))
 	  (cons l (make-cycle-seq game))
 	  nil))))
 
