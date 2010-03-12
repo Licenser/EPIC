@@ -2,13 +2,11 @@
   "one": {
     "classes": {
       "fighter": {
-        "script": "fighter",
+        "script": "(fighter game unit)",
         "modules": ["Fighter L", "Small Battery", "fighter Engine", "Laser"]
       }
     },
     "units": [
-      {"class": "fighter"},
-      {"class": "fighter"},
       {"class": "fighter"}
     ],
     "start-x": 10,
@@ -20,13 +18,11 @@
   "two": {
     "classes": {
       "fighter": {
-        "script": "fighter",
+        "script": "(fighter game unit)",
         "modules": ["Fighter L", "Small Battery", "fighter Engine", "Laser"]
       }
     },
     "units": [
-      {"class": "fighter"}
-      {"class": "fighter"}
       {"class": "fighter"}
     ],
     "start-x": 0,

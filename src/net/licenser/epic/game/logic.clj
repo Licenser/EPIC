@@ -16,6 +16,11 @@
      (take 6 (cons (mod start 6) (directions start 1 d)))))
 
 
+(defn register-target
+  [unit target]
+  (dosync (alter unit assoc :last-targe target)))
+
+
 (defn intercept-unit
   ([game unit target distance visited]
      (utils/trace "logic.intercept-unit" "start")

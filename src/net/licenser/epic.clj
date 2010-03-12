@@ -1,6 +1,7 @@
 (ns net.licenser.epic
   (:use net.licenser.epic.utils)
   (:use net.licenser.epic.game)
+  (:use net.licenser.sandbox)
   (:require (net.licenser.epic [modules :as modules] [units :as units]))
   (:require [clojure.contrib.json.write :as json])
   (:require [clojure.contrib.json.read :as jr])  
@@ -12,6 +13,8 @@
   (:use clojure.contrib.command-line)
   (:gen-class))
 
+
+(def *compiler* (create-sandbox-compiler ))
 (declare *game* *unit-id*)
 
 (defn load-data-file
@@ -115,8 +118,6 @@
 
 (defn ff-cycle-script
   [game unit]
-;  (if (and (:last-target @unit) (not (:destroyed @(:last-target @unit))))
-;    (dosync (fire-all (intercept-unit game unit (:last-target @unit) 2) unit (:last-target @unit)))
     (let [d (module-spec (first (get-modules @unit :weapon)) :range)
 	  hostiles (find-hostile-units game unit 100)
 	  target (best-target 
@@ -125,9 +126,9 @@
 		  (fn [new-t old-t] (< (map-distance @unit new-t) (map-distance @unit old-t))))]
       (if target
 	(dosync 
-	  (alter unit assoc :last-target target)
+	  (register-target unit target)
 	  (fire-all (intercept-unit game unit target 2) unit target))
-	game)));)
+	game)))
 
 
 (defn dd-cycle-script
@@ -156,7 +157,7 @@
 	(if target
 	  (dosync
 	   (combat-log :target {:unit (:id @unit) :target (:id @target)})
-	   (alter unit assoc :last-target target)
+	   (register-target unit assoc target)
 	   (fire-all (intercept-unit game unit target (if (> (unit-mass @target) 10000) weapon-range pd-range)) unit target)
 	   (emply-point-defense game unit))
 	  game)))))
@@ -168,7 +169,8 @@
 (defn build-unit
   [team unit]
   (let [modules (get unit "modules")
-	script (get @*scripts* (get unit "script"))
+	code (*compiler* (get unit "script") 'fighter 'game 'unit)
+	script (fn [bindings & locals] (apply code bindings ff-cycle-script locals))
 	n (str (gensym "") "-" team)
 	u (units/init-unit 
 	   (apply units/create-unit 

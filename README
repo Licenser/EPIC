@@ -1,4 +1,6 @@
 EPIC
 
-to get data:
+To get it run:
 cp -r templates data
+lein uberjar
+java -jar EPIC-standalone.jar

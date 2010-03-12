@@ -2,7 +2,7 @@
   ;(:require [clojure.contrib.io :as c.c.io])
   (:import java.util.UUID))
 
-(def *trace* false)
+(def *trace* true)
 
 (declare *log*)
 
