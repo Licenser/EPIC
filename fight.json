@@ -2,7 +2,14 @@
   "one": {
     "classes": {
       "fighter": {
-        "script": "(fighter game unit)",
+        "script": "
+    (let [d 2
+	  hostiles (foes-in-range 100)
+	  target (first hostiles)]
+      (if target
+      	  (do
+            (intercept target 2)	  
+	    (fire-all target))))",
         "modules": ["Fighter L", "Small Battery", "fighter Engine", "Laser"]
       }
     },
@@ -18,7 +25,13 @@
   "two": {
     "classes": {
       "fighter": {
-        "script": "(fighter game unit)",
+        "script": "(let [d 2
+	  hostiles (foes-in-range 100)
+	  target (first hostiles)]
+      (if target
+      	  (do
+            (intercept target 2)	  
+	    (fire-all target))))",
         "modules": ["Fighter L", "Small Battery", "fighter Engine", "Laser"]
       }
     },

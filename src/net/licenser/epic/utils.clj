@@ -2,7 +2,7 @@
   ;(:require [clojure.contrib.io :as c.c.io])
   (:import java.util.UUID))
 
-(def *trace* true)
+(def *trace* false)
 
 (declare *log*)
 
@@ -72,7 +72,7 @@
 
 (defn combat-log [type msg]
   (dosync
-   (alter *cycle-log* conj (assoc msg :type type))))
+   (alter net.licenser.epic.utils/*cycle-log* conj (assoc msg :type type))))
 
 (defn log [prefix id & msgs]
   (binding [*out* *err*]

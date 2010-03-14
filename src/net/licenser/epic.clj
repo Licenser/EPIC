@@ -14,7 +14,7 @@
   (:gen-class))
 
 
-(def *compiler* (create-sandbox-compiler ))
+(def *compiler* (create-sandbox-compiler 'net.licenser.epic.sandbox debug-tester))
 (declare *game* *unit-id*)
 
 (defn load-data-file
@@ -169,15 +169,73 @@
 (defn build-unit
   [team unit]
   (let [modules (get unit "modules")
-	code (*compiler* (get unit "script") 'fighter 'game 'unit)
-	script (fn [bindings & locals] (apply code bindings ff-cycle-script locals))
+	code (*compiler* (get unit "script") 
+			 'move
+			 'intercept
+			 'foes-in-range 
+			 'unit-at 
+			 'fire-at
+			 'mass-of
+			 'fire-all
+			 'distance-to)
 	n (str (gensym "") "-" team)
 	u (units/init-unit 
 	   (apply units/create-unit 
-		  0 n team script 0 0
+		  0 n team code 0 0
 		  (map #(get @*modules* %) modules)))]
     (assoc u :id n)))
 
+
+(defn init-unit-script
+  [game unit]
+  (let [script (:cycle-script @unit)]
+    (dosync (alter unit assoc  :cycle-script
+		   (fn cycle-script [bindings] 
+		     (script bindings 
+			     ; I am  not certain what happens here but I seem to need this nil ...
+					;move
+			     (fn move [direction]
+			       (trace "script/move" "Moving to" direction)
+			       (throw (RuntimeException. "Not implemented yet."))
+			       nil)
+					;intercept
+			     (fn intercept [target distance]
+			       (trace "script/intercept" "Intercepting:" target)
+			       (when-let [target (get-unit game target)]
+				 (dosync (intercept-unit game unit target distance))
+				 (map-distance @unit @target)))
+					;foes-in-range
+			     (fn foes-in-range [range]
+			       (trace "script/foes-in-range" "Getting foes in range" range)
+			       (map (fn [u] (:id @u)) (find-hostile-units game unit range)))
+					;unit-at 
+			     (fn unit-at [x y]
+			       43)
+					;fire-at
+			     (fn fire-at [weapon target]
+			       (trace "script/fire-at" "Fiering weapon" weapon "at" target)
+			       (when-let [target (get-unit game target)]
+				 (dosync (fire-weapon game unit weapon target)))
+			       nil)
+					;mass-of
+			     (fn mass-of [target]
+			       (trace "script/mass-of" "Getting mass of" target)
+			       (when-let [target (get-unit game target)]
+				 (unit-mass @target)))
+					;fire-all
+			     (fn fire-all-for-unit [target]
+			       (trace "script/fire-all" "Fiering all at" target)
+			       (when-let [target (get-unit game target)]
+				 (dosync (fire-all game unit target)))
+			       nil)
+					;distance-to
+			     (fn distance-to [target]
+			       (trace "script/distance-to" "Calculating distance to" target)
+			       (when-let [target (get-unit game target)]
+				 (map-distance @unit @target)))))))
+    unit))
+  
+		  
 (defn valid-unit
   [unit]
   (and 
@@ -190,33 +248,36 @@
   (let [game (bind-game)]
     (binding [*cycle-log* (:cycle-log game)
 	      *log* (:game-log game)]
-      (assoc 
-	  game :game 
-	  (reduce (fn [game [team data]]
-		    (let[classes (get data "classes" {})
-			 units (get data "units")
-			 start-x (get data "start-x")
-			 start-y (get data "start-y")
-			 d-x (get data "d-x")
-			 d-y (get data "d-y")
-			 row-size (get data "row-size")]
-		      (reduce 
-		       (fn [game [unit i]]
-			 (let [class (get unit "class")
-			       unit (if class (merge unit (get classes class)) unit)
-			       u (build-unit team unit)]
-			   (if (valid-unit u)
-			     (let [x (- start-x (mod i row-size))
-				   x (int (+ x (* d-x (Math/floor (/ i row-size)))))
-				   y (- start-y (mod i row-size))
-				   y (int (+ y (* d-y (Math/floor (/ i row-size)))))
-				   g (add-unit game u)
-				   u (get-unit g (:id u))]
-			       (combat-log :spawn {:unit (:id @u) :team team :data (unit-data @u)})
-			       (move-unit* g u x y))
-			     (do 
-			       (println "Invalid unit:" unit)
-			       game)))) game (map (fn [a b] [a b]) units (iterate inc 0)) ))) (:game game) data)))))
+      (let [game (assoc 
+		     game :game 
+		     (reduce (fn [game [team data]]
+			       (let[classes (get data "classes" {})
+				    units (get data "units")
+				    start-x (get data "start-x")
+				    start-y (get data "start-y")
+				    d-x (get data "d-x")
+				    d-y (get data "d-y")
+				    row-size (get data "row-size")]
+				 (reduce 
+				  (fn [game [unit i]]
+				    (let [class (get unit "class")
+					  unit (if class (merge unit (get classes class)) unit)
+					  u (build-unit team unit)]
+				      (if (valid-unit u)
+					(let [x (- start-x (mod i row-size))
+					      x (int (+ x (* d-x (Math/floor (/ i row-size)))))
+					      y (- start-y (mod i row-size))
+					      y (int (+ y (* d-y (Math/floor (/ i row-size)))))
+					      g (add-unit game u)
+					      u (get-unit g (:id u))
+					     ]
+					  (combat-log :spawn {:unit (:id @u) :team team :data (unit-data @u)})
+					  (move-unit* g u x y))
+					(do 
+					  (println "Invalid unit:" unit)
+					  game)))) game (map (fn [a b] [a b]) units (iterate inc 0))))) (:game game) data))]
+	(dorun (map (partial init-unit-script (:game game)) (vals (:units (:game game)))))
+	game))))
 
 (defn load-fight
   [file]

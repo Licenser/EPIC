@@ -63,12 +63,15 @@
 
  (defn find-units
    [game pred]
-    (filter (fn [u]
-	      (utils/trace "find-units" "testing unit:" (:id @u))
-	      (if (and utils/*trace* (pred @u))
-		(utils/trace "find-units" "testing unit:" (:id @u) "positive!")
-		(utils/trace "find-units" "testing unit:" (:id @u) "negativ!"))
-	      (pred @u)) (vals (:units game))))
+   (let [units (vals (:units game))
+	 units (filter (fn [u]
+			  (utils/trace "find-units" "testing unit:" (:id @u))
+			  (if (and utils/*trace* (pred @u))
+			    (utils/trace "find-units" "testing unit:" (:id @u) "positive!")
+			    (utils/trace "find-units" "testing unit:" (:id @u) "negativ!"))
+			  (pred @u)) units)
+	 units (if utils/*trace* (doall units) units)]
+   units))
 
  (defn find-hostile-units
    ([game unit]

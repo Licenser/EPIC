@@ -124,6 +124,6 @@
 	(if (:cycle-script @unit)
 	  (do
 	    (utils/trace "units.cycle-unit" "Running custom script")
-	    ((:cycle-script @unit) {'net.licenser.epic.utils/*cycle-log* utils/*cycle-log*} game unit)
+	    ((:cycle-script @unit) {'net.licenser.epic.utils/*cycle-log* utils/*cycle-log* '*out* *out*})
 	    game)
 	  game))))
